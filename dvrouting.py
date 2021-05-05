@@ -39,17 +39,32 @@ def initialize_routingTable( a_node ):
 
 
 
-def round_print( time, a_node ):
-    print(f"Time { time }:")
-    print("Distance Table for A:\n--------------------\nTo Via")
-    a_node.print_distanceTable()
-    print("\nRouting Table for A\n-------------------")
-    a_node.print_routingTable()
-    print( "\nMessages Sent:")
-    print( a_node.generate_messages() )
+def round_print( time, a_node, output ):
+    # print(f"Time { time }:")
+    # print("Distance Table for A:\n--------------------\nTo Via")
+    # a_node.print_distanceTable()
+    # print("\nRouting Table for A\n-------------------")
+    # a_node.print_routingTable()
+    # print( "\nMessages Sent:")
+    # print( a_node.generate_messages() )
+    # print()
+
+    if time == 0:
+        output.append(f"Time { time }:\n")
+    else:
+        output.append(f"\nTime { time }:\n")
+        
+    output.append("Distance Table for A:\n--------------------\nTo Via\n")
+    output.append( a_node.print_distanceTable() )
+    output.append("\nRouting Table for A\n-------------------\n")
+    output.append( a_node.print_routingTable() )
+    output.append("\nMessages Sent:\n")
+    output.append(a_node.generate_messages())
+    output.append( "\n" )
 
 
-def run( filepath ):
+
+def run( filepath, output ):
 
     a_node = dv_Node( "A" )
     time = 0
@@ -58,26 +73,23 @@ def run( filepath ):
 
         messages = ""
         
-        if index > 0:
-            break
-
-        # print( f"index={index}" )
-        # print( line )
-
         if index == 0:
             initialize_distanceTable( line, a_node )
             initialize_routingTable( a_node )
-            round_print(time, a_node)
+            round_print(time, a_node, output )
         
         if index > 0:
-            round_print( time, a_node )
+
+            message_lst = line.split( ";" )
+            message_lst = [ el.strip("\n") for el in message_lst ]
+
+            a_node.update_distanceTable(message_lst)
+            a_node.update_routingTable()
+            
+            round_print( time, a_node, output )
         
         time += 1
             
-
-
-
-
 
 def main():
 
@@ -90,23 +102,25 @@ def main():
         if index == 2:
             output_path = arg
 
-    filepath = "inputFile.txt"
-
-    print( filepath )
+    # filepath = "inputFile.txt"
+    # output_path = "outputFile.txt"
 
     if filepath == "":
         print("\033[1;31;40mA filepath must be provided to run the program.\033[1;37;40m")
         sys.exit( 1000 )
 
-    # print(os.path.curdir + os.path.sep + filepath )
+    output = []
 
-    # if os.path.cur( filepath ):
-    #     print( "\033[1;31;40mThe filepath must exist to run the program.\033[1;37;40m")
-    #     sys.exit(1001)
+    run(filepath, output )
 
+    for el in output:
+        print( el, end="" )
 
-    run( filepath )
-
+    if output_path:
+        fp = open( output_path, "w")
+        for el in output:
+            fp.write(el)
+        fp.close()
 
 if __name__ == "__main__":
     main()
