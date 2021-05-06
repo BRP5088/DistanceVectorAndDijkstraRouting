@@ -3,3 +3,5 @@ Project3.zip
 .vscode/settings.json
 .vscode/.ropeproject/config.py
 __pycache__/dv_Node.cpython-37.pyc
+__pycache__/ls_Node.cpython-37.pyc
+outputFile.txt
