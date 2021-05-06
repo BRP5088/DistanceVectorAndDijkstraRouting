@@ -47,9 +47,22 @@ def display_board( node_map, board, output ):
                 output.append(f" { cell }\t" )
             
             if index == 1:
-
                 # print(f"{ cell }" + " " * ( len( cell ) -1 ), end="")
                 output.append(f"{ cell }" + " " * (len(cell) - 1) )
+
+            if index > 1:
+
+                if index == 2:
+                    output.append(" " * (len( node_map.keys() ) + 3 - len( cell ) ) )
+
+                if cell == "":
+                    output.append("       ")
+                elif cell == "-,-":
+                    output.append(f"{cell}    ")
+                elif cell == "*":
+                    output.append(f" {cell}   ")
+                else:
+                    output.append( f"{ cell[0] },{cell[1]}    " )
         
         # print()
         output.append( "\n" )
@@ -71,7 +84,9 @@ def generate_board( node_map, board ):
         node = node_lst.pop(0)
         looked_at.append(node.name)
 
-        for spot in range(0, len( node_map.keys() ) ):
+        node_neighbor_lst = sorted(list(node.distanceTable.keys()))
+
+        for spot in range(0, len( node_map.keys() ) + 1 ):
 
             if spot == 0:
                 board[iteration].append( iteration )
@@ -80,16 +95,39 @@ def generate_board( node_map, board ):
                 if iteration == 0:
                     board[iteration].append( node.name )
                 else:
-                    board[iteration].append( board[ iteration - 1][1] )
+                    board[iteration].append( board[ iteration - 1][1] + node.name )
         
             if spot > 1:
 
-
                 if iteration == 0:
+                    letter = node_neighbor_lst[spot - 2]
 
-                    # node_neighbor_lst = sorted( list( node.distanceTable.keys() ), key=lambda x: node.distanceTable[x] )
-                    node_neighbor_lst = sorted( list( node.distanceTable.keys() ) )
-                
+                    if spot -2 < len( node_neighbor_lst ):
+                        board[iteration].append( (node.distanceTable[ letter ], letter) )
+                    else:
+                        board[iteration].append( "-,-" )
+
+                else:
+                    a_node = node_map[ "A" ]
+                    weight_to_curr_node = int( a_node.distanceTable[ node.name ] )
+
+                    for node_neighbor in node_neighbor_lst:
+                        
+                        weight_to_neighbor = int( node.distanceTable[ node_neighbor ] ) + weight_to_curr_node
+                        
+                        
+                        previous_round_weight = -1
+
+                        if board[iteration-1][spot-2] == ""
+                        
+                        # previous_round_weight = board[iteration-1][spot-2]
+
+                        # if weight_to_neighbor < 
+
+                        
+                    
+
+
                 # for neighbor in node_neighbor_lst:
                 #     if neighbor not in looked_at:
                 #         node_lst.append( node_map[ neighbor ] )
@@ -97,6 +135,13 @@ def generate_board( node_map, board ):
                 #         board[ iteration ].append( ( node.distanceTable[ neighbor ], "B" ) )
         
         iteration += 1
+        
+        
+        node_neighbor_lst = sorted( list( node.distanceTable.keys() ), key=lambda x: node.distanceTable[x] ) # this sorts the nodes by weight
+
+        for neighbor in node_neighbor_lst:
+            if neighbor not in looked_at and node_map[neighbor] not in node_lst:
+                node_lst.append( node_map[ neighbor ] )
     
 
 
