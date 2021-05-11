@@ -11,11 +11,17 @@ from dv_Node import *
 def initialize_distanceTable( init_line, a_node):
     init_lst = init_line.split(",")
 
+    
+    print( f"init_lst=={init_lst}" )
+
     letters_arr = []
     numbers_arr = []
 
     for n in init_lst:
+        print( f"n=={n}" )
         tmp = n.split("=")  # e.g., [ "B", "10" ]
+        print( f"tmp=={tmp}" )
+
 
         letters_arr.append(tmp[0].strip())
         numbers_arr.append(tmp[1].strip())
@@ -103,6 +109,7 @@ def main():
             output_path = arg
 
     # filepath = "inputFile.txt"
+    filepath = "LSInput.txt"
     # output_path = "outputFile.txt"
 
     if filepath == "":

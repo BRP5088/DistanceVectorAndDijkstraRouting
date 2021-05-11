@@ -80,10 +80,15 @@ def generate_board( node_map, board ):
 
     while len( node_lst ) > 0:
 
+        node_lst = sorted(node_lst, key=lambda x: int( "0" if x.name == "A" else node_map["A"].distanceTable[x.name] ))
+
         node = node_lst.pop(0)
         looked_at.append(node.name)
 
         node_neighbor_lst = sorted(list(node.distanceTable.keys()))
+
+        if iteration > 7:
+            continue
 
         for spot in range(0, len( node_map.keys() ) + 1 ):
 
@@ -97,21 +102,23 @@ def generate_board( node_map, board ):
                     board[iteration].append( board[ iteration - 1][1] + node.name )
         
             if spot > 1:
+                size_diff = len(node_index_lst)-(len(board[iteration]) - 2)
+                if size_diff > 0:
+                    for _ in range(size_diff):
+                        board[iteration].append("")
 
                 if iteration == 0:
-                    if spot -2 < len( node_neighbor_lst ):
-                        letter = node_neighbor_lst[spot - 2]        
-                        board[iteration].append( (node.distanceTable[ letter ], letter) )
+                    letter = node_index_lst[ spot-2 ]
+                    letter_placement = node_index_lst.index(letter)
+
+                    if letter in node_neighbor_lst:
+                        board[iteration][2 + letter_placement] = ((node.distanceTable[letter], letter))
                     else:
-                        board[iteration].append( "-,-" )
+                        board[iteration][2 + letter_placement] = "-,-"
 
                 else:
-                    size_diff = len(node_index_lst)-(len(board[iteration]) - 2)
-                    if size_diff > 0:
-                        for _ in range(size_diff):
-                            board[iteration].append("    ")
-
                     if node_index_lst.index( node.name ) == spot - 2:
+                        print( f"iteration = {iteration}, spot={spot}" )
                         board[iteration][spot] = "*"
                         continue
 
@@ -124,14 +131,18 @@ def generate_board( node_map, board ):
 
 
                     a_node = node_map[ "A" ]
+
                     weight_to_curr_node = int( a_node.distanceTable[ node.name ] )
+
+                    # print( f"node = {node.name }")
 
                     for node_neighbor in node_neighbor_lst:
 
                         if not node_neighbor == "A":
 
-                            
                             if node_neighbor not in looked_at:
+
+                                # print( f"node_neighbor={node_neighbor}" )
                             
 
                                 weight_to_neighbor = int( node.distanceTable[ node_neighbor ] ) + weight_to_curr_node
@@ -141,21 +152,37 @@ def generate_board( node_map, board ):
 
                                 previous_round_weight = sys.maxsize
 
+                                print( f"cell_above={cell_above}" )
+
                                 if type( cell_above ) == tuple:
                                     previous_round_weight = int( cell_above[0] )
-                                elif cell_above == " * " or cell_above == "    ":
+                                elif cell_above == "*" or cell_above == "":
+                                # elif cell_above == " * " or cell_above == "":
                                     continue
 
                                 
                                 if weight_to_neighbor > previous_round_weight:
+                                    print(f"node.name={node.name}")
+                                    print( f"neighbor={node_neighbor}" )
+                                    print(f"deep copy of {cell_above}")
+                                    
                                     board[iteration][2+letter_placement] = copy.deepcopy( cell_above )
+
+                                    if node_neighbor not in list( a_node.distanceTable.keys() ):
+                                        a_node.distanceTable[node_neighbor] = previous_round_weight
+                                        # print(
+                                        #     f"old value. a_node.distanceTable[{node_neighbor}]= {a_node.distanceTable[node_neighbor]} ")
+
                                 else:
                                     board[iteration][2+letter_placement] = (weight_to_neighbor, node.name )
                                     
                                     a_node.distanceTable[node_neighbor] = weight_to_neighbor
                                     a_node.routingTable[ node_neighbor ] = node.name
+                                    # print(
+                                    #     f"new value. a_node.distanceTable[{node_neighbor}]= {a_node.distanceTable[node_neighbor]} ")
 
                             else:
+                                # print(f"node_neighbor={node_neighbor}")
                                 board[iteration][spot] = ""
         
         
@@ -198,7 +225,10 @@ def run(filepath, output):
     output.append("Step\tN")
     nodes = sorted( node_map.keys() )
 
-    output.append( " " * (len( nodes ) + 5))
+    # output.append( "*" * (len( nodes ) + 5))
+    # output.append(f"?" * (len(node_map.keys()) - len(cell) ))
+
+    output.append(" " * (len(node_map.keys()) * 2 - 1))
 
 
     for node_name in nodes:
@@ -232,6 +262,7 @@ def main():
             output_path = arg
 
     # filepath = "DijkstraInput.txt"
+    filepath = "LSInput.txt"
     # output_path = "DijkstraOutputFile.txt"
 
     if filepath == "":
